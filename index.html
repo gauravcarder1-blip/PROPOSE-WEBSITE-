@@ -133,17 +133,17 @@
 <body>
     <audio id="bgAudio" loop preload="none">
         <source src="romantic-piano-loop.mp3" type="audio/mpeg">
-        <!-- Replace with your local audio file path if needed -->
+        <!-- Optional: Add your audio file here -->
     </audio>
 
     <div class="scene scene1 active" id="scene1">
         <div class="text typing">Hey... I have something to tell you 💕</div>
-        <button class="button" onclick="nextScene(2)">Click to Begin ❤️</button>
+        <button class="button" id="beginBtn">Click to Begin ❤️</button>
     </div>
 
     <div class="scene scene2" id="scene2">
         <div class="text" id="scene2Text"></div>
-        <button class="button" id="nextBtn" onclick="nextSubScene()">Next ❤️</button>
+        <button class="button" id="nextBtn">Next ❤️</button>
         <div class="hearts" id="hearts"></div>
     </div>
 
@@ -151,7 +151,7 @@
         <div class="text">I think… I’ve fallen in love with you.</div>
         <div class="text confession">I LOVE YOU ❤️</div>
         <div class="text" style="font-size: 1rem; margin-top: 2rem;">– From GAURAV SINGH TOMAR 💫</div>
-        <button class="button" onclick="nextScene(4)" style="margin-top: 2rem;">Continue 💌</button>
+        <button class="button" id="continueBtn">Continue 💌</button>
     </div>
 
     <div class="scene scene4" id="scene4">
@@ -181,27 +181,35 @@
             "linear-gradient(45deg, #ffe0f0, #fff5f8)"
         ];
 
+        // Function to transition scenes
         function nextScene(sceneNum) {
-            // Add a small delay for smooth transition
+            console.log('Transitioning to scene:', sceneNum); // Debug log
+            const currentEl = document.getElementById(`scene${currentScene}`);
+            const nextEl = document.getElementById(`scene${sceneNum}`);
+            if (!currentEl || !nextEl) {
+                console.error('Scene element not found!');
+                return;
+            }
             setTimeout(() => {
-                document.getElementById(`scene${currentScene}`).classList.remove('active');
+                currentEl.classList.remove('active');
                 currentScene = sceneNum;
-                document.getElementById(`scene${currentScene}`).classList.add('active');
+                nextEl.classList.add('active');
                 if (sceneNum === 2) {
                     subScene = 0;
                     updateSubScene();
-                    // Try to play audio, but don't let it block if it fails
                     try {
                         document.getElementById('bgAudio').play();
+                        console.log('Audio started');
                     } catch (e) {
-                        // Audio play failed (e.g., no file or browser restriction), but continue
-                        console.log('Audio play failed, continuing without sound.');
+                        console.log('Audio play failed, continuing without sound:', e);
                     }
                 }
             }, 100);
         }
 
+        // Function for sub-scenes in scene2
         function nextSubScene() {
+            console.log('Next sub-scene');
             subScene++;
             if (subScene < messages.length) {
                 updateSubScene();
@@ -210,18 +218,22 @@
             }
         }
 
+        // Update text and background for sub-scenes
         function updateSubScene() {
             const textEl = document.getElementById('scene2Text');
+            if (!textEl) return;
             textEl.textContent = messages[subScene];
             textEl.classList.remove('typing');
-            void textEl.offsetWidth; // Trigger reflow
+            void textEl.offsetWidth; // Reflow
             textEl.classList.add('typing');
             document.getElementById('scene2').style.background = backgrounds[subScene];
             generateHearts('hearts');
         }
 
+        // Generate floating hearts
         function generateHearts(containerId) {
             const container = document.getElementById(containerId);
+            if (!container) return;
             container.innerHTML = '';
             for (let i = 0; i < 10; i++) {
                 const heart = document.createElement('div');
@@ -233,8 +245,20 @@
             }
         }
 
-        // Initial hearts for scene4
-        generateHearts('hearts4');
+        // Event listeners for buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, setting up listeners');
+            const beginBtn = document.getElementById('beginBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const continueBtn = document.getElementById('continueBtn');
+
+            if (beginBtn) beginBtn.addEventListener('click', () => nextScene(2));
+            if (nextBtn) nextBtn.addEventListener('click', nextSubScene);
+            if (continueBtn) continueBtn.addEventListener('click', () => nextScene(4));
+
+            // Initial setup
+            generateHearts('hearts4');
+        });
     </script>
 </body>
 </html>
